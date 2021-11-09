@@ -44,11 +44,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
-});
-
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;  
   delete urlDatabase[shortURL];  
@@ -57,18 +52,18 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL/", (req, res) => {
  // extract the id
- const shortURL = req.params.shortURL;
+  const shortURL = req.params.shortURL;
 
  // extract the question and anwer
- const longURL= req.body.longURL;
+  const longURL= req.body.longURL;
 
  // update the db
 
- urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = longURL;
 
 
  // redirect
- res.redirect('/urls');  
+  res.redirect('/urls');  
 });
 
 app.get("/u/:shortURL", (req, res) => {
