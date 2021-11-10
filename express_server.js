@@ -17,12 +17,11 @@ app.use(cookieParser());
 const findDbEmail = function(email){
   for(let userRandomId in users) {
     if(users[userRandomId].email === email){
-      return users[userRandomId].email;
+      return users[userRandomId].id;
     }
   }
   return null;
 }
-
 
 const users = { 
   "userRandomID": {
@@ -74,6 +73,10 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new",templateVars);
 }); 
 
+app.get("/login", (req, res) => {
+  res.render('login');
+});
+
 app.get("/register", (req, res) => {
   res.render('register');
 });
@@ -124,7 +127,18 @@ app.post('/urls/new', (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
+
+  const email = req.body.email;
+  const password = req.body.password;
+  const found = findDbEmail(email);
+  if(!found) {
+    res.sendStatus(403);
+  }
+  if(users[found].password !== password) {
+    res.sendStatus(403);
+  }
+  
+  res.cookie('user_id', found);
   res.redirect('/urls');    
 });
 

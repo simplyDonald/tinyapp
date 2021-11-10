@@ -16,10 +16,11 @@
           <button class='btn btn-outline-dark' type='submit'>Logout</button>
         </form>
       <% } else{ %>  
-        <form method= 'POST' action="login">
-          <label for='username'>Username</label>
-          <input type="text" name='username'>
-          <button class='btn btn-outline-dark' type='submit'>Login</button>
+        <form method= 'GET' action="/login">
+          <button class='btn btn-primary' type='submit'>Login</button>
+        </form>
+        <form method= 'GET' action="/register">
+          <button class='btn btn-success' type='submit'>Register</button>
         </form>
       <% } %>
 
