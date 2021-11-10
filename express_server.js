@@ -8,16 +8,7 @@ const cookieParser = require('cookie-parser')
 
 
 
-function generateRandomString(length = 6) {
-  let result           = '';
-  const characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  for ( var i = 0; i < length; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  
-  return result;
-  }
-}
+
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
@@ -52,6 +43,23 @@ app.get("/urls/new", (req, res) => {
   };
   res.render("urls_new",templateVars);
 }); 
+
+app.post('/urls/new', (req, res) => {
+
+  // extract the information that was Submitted with the form
+  const longURL = req.body.longURL;
+
+  const newKey = Math.random().toString(36).substring(2,8);
+
+  // Add it to the database (jsJokesDb)
+  urlDatabase[newKey] = longURL;
+
+  // redirect
+  // ask the browser to perform get /jokes
+  res.redirect('/urls');
+
+
+})
 
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
