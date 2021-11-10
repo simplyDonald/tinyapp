@@ -68,13 +68,16 @@ app.get("/urls", (req, res) => {
 //     }
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[req.cookies['user_id']],
     urls: urlDatabase
   };
-  res.render("urls_new",templateVars);
+  if(res.cookie['user_id']){
+    res.render('urls_new',templateVars);
+  }
+  res.send(`Please login first`);
 }); 
 
-app.get("/login", (req, res) => {
+app.get('/login', (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
     urls: urlDatabase
