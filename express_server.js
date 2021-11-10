@@ -14,7 +14,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(cookieParser());
 
-const findDbEmail = function(email){
+//return the id value in the Db from a matching email;
+const findDbId = function(email){
   for(let userRandomId in users) {
     if(users[userRandomId].email === email){
       return users[userRandomId].id;
@@ -90,7 +91,7 @@ app.post('/register', (req, res) => {
   if(!email || !password){
     return res.sendStatus(400);
   }
-  const found = findDbEmail(email);
+  const found = findDbId(email);
   if(found) {
     return res.sendStatus(400);
   }
@@ -130,7 +131,7 @@ app.post("/login", (req, res) => {
 
   const email = req.body.email;
   const password = req.body.password;
-  const found = findDbEmail(email);
+  const found = findDbId(email);
   if(!found) {
     res.sendStatus(403);
   }
@@ -143,7 +144,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
 
   res.redirect('/urls');    
 });
