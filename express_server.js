@@ -75,11 +75,19 @@ app.get("/urls/new", (req, res) => {
 }); 
 
 app.get("/login", (req, res) => {
-  res.render('login');
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+    urls: urlDatabase
+  };
+  res.render('login', templateVars);
 });
 
 app.get("/register", (req, res) => {
-  res.render('register');
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+    urls: urlDatabase
+  };
+  res.render('register', templateVars);
 });
 
 app.post('/register', (req, res) => {
