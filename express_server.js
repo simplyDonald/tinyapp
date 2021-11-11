@@ -1,16 +1,19 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; // default port 8080
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser')
+const bcrypt = require('bcryptjs');
+const salt = bcrypt.genSaltSync(10);
+const cookieParser = require('cookie-parser');
+const cookieSession = require("cookie-session");
+const morgan = require('morgan');
 
 
 
 
 
 
-
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(morgan('short'));
+app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(cookieParser());
 
@@ -68,7 +71,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
+  res.json(users);
 });
 
 
@@ -131,15 +134,11 @@ app.post('/register', (req, res) => {
   users[newRandomId] = {
     id: newRandomId, 
     email: email, 
-    password: password
-  };
-
+    password: bcrypt.hashSync(password, salt)
+  }
   res.cookie('user_id', newRandomId );
   // redirect
-  // ask the browser to perform get /jokes
   res.redirect('/urls');
-
-
 })
 
 app.post('/urls/new', (req, res) => {
@@ -228,6 +227,10 @@ app.get('/urls/:shortURL', (req, res) => {
   if(!req.cookies['user_id']){
     return res.send(`Please login first`);
   } 
+
+  if(!urlDatabase[req.params.shortURL]) {
+    return res.send(`This link is invalid`)
+  }
 
   if(urlDatabase[req.params.shortURL].userID !== req.cookies['user_id'] ) {
     return res.send(`This link doesn't exist in your collection`)
