@@ -81,6 +81,7 @@ app.get('/urls', (req, res) => {
     user: users[userId],
     urls: findUserUrls(urlDatabase,userId)
   };
+  console.log(`from GET /urls`,urlDatabase);
   res.render('urls_index',templateVars);
 });
 
@@ -117,7 +118,7 @@ app.post('/register', (req, res) => {
 
   // extract the information that was Submitted with the form
   const {email, password} = req.body;
-  // const password = req.body.password;
+
   const newRandomId = Math.random().toString(36).substring(2,8);
   if(!email || !password){
     return res.sendStatus(400);
@@ -159,6 +160,7 @@ app.post('/urls/new', (req, res) => {
 
   // redirect
   // ask the browser to perform get /jokes
+  console.log(urlDatabase);
   res.redirect('/urls');
 
 
@@ -187,12 +189,19 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
+  if(!req.cookies['user_id']){
+    return res.sendStatus(403);
+  } 
+
   const shortURL = req.params.shortURL;  
   delete urlDatabase[shortURL];  
   res.redirect('/urls');    
 });
 
 app.post('/urls/:shortURL/', (req, res) => {
+  if(!req.cookies['user_id']){
+    return res.sendStatus(403);
+  } 
  // extract the id
   const shortURL = req.params.shortURL;
 
