@@ -71,10 +71,12 @@ app.get("/urls/new", (req, res) => {
     user: users[req.cookies['user_id']],
     urls: urlDatabase
   };
-  if(res.cookie['user_id']){
-    res.render('urls_new',templateVars);
-  }
-  res.send(`Please login first`);
+  if(!req.cookies['user_id']){
+    res.redirect('/login');
+  } 
+
+  res.render('urls_new',templateVars);
+  
 }); 
 
 app.get('/login', (req, res) => {
@@ -123,6 +125,9 @@ app.post('/register', (req, res) => {
 
 app.post('/urls/new', (req, res) => {
 
+  if(!req.cookies['user_id']){
+    res.sendStatus(403);
+  } 
   // extract the information that was Submitted with the form
   const longURL = req.body.longURL;
 
