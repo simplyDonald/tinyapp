@@ -6,6 +6,7 @@ const salt = bcrypt.genSaltSync(10);
 const cookieParser = require('cookie-parser');
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
+const {users, urlDatabase} = require("./data/user_data");
 
 
 
@@ -16,7 +17,12 @@ app.use(morgan('short'));
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use(cookieParser());
-
+app.use(
+	cookieSession({
+		name: "session",
+		keys: ["I like security it's the best", "key2"],
+	})
+);
 //return the id value in the Db from a matching email;
 const findDbId = function(email){
   for(let userRandomId in users) {
@@ -27,34 +33,24 @@ const findDbId = function(email){
   return null;
 }
 
-const users = { 
-  'userRandomID': {
-    id: 'userRandomID', 
-    email: 'user@example.com', 
-    password: '123'
-  },
- 'user2RandomID': {
-    id: 'user2RandomID', 
-    email: 'user2@example.com', 
-    password: '123'
-  }
-}
+//function to authenticate users by comparing hashed passwords(returns an object)
+const authenticateUser = (userDB, email, password) => {
+	const currentUser = userDB[email];
 
-const urlDatabase = {
-  b6UTxQ: {
-      longURL: 'https://www.tsn.ca',
-      userID: 'userRandomID'
-  },
-  i3BoGr: {
-      longURL: 'https://www.google.ca',
-      userID: 'user2RandomID'
-  },
-  i3B98e: {
-    longURL: 'https://www.pinkbars.ca',
-    userID: 'userRandomID'
-}
+	if (!currentUser) {
+		// If it doesn't match, redirect to /
+
+		return { data: null, error: "Not a valid email" };
+	}
+
+	// if (currentUser.password !== password) {
+	if (!bcrypt.compareSync(password, currentUser.password)) {
+		// If it doesn't match, redirect to /
+		return { data: null, error: "Not a valid password" };
+	}
+	// If it match, redirect to /vault + cookie
+	return { data: currentUser, error: null };
 };
-
 
 const findUserUrls = function(urlDatabase, userId){
   const newObj = {};
