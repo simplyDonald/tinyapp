@@ -155,7 +155,7 @@ app.post('/urls/new', (req, res) => {
   // Add it to the database (jsJokesDb)
   urlDatabase[newKey] = {
     longURL,
-    user_id: req.cookies['user_id']
+    userID: req.cookies['user_id']
   }
 
   // redirect
