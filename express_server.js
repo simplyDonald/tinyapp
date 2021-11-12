@@ -7,8 +7,9 @@ const cookieParser = require('cookie-parser');
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const {users, urlDatabase} = require("./data/user_data");
+const middlewareHelperGenerator = require("./helpers/middleware_helpers");
 const { authenticateUser, fetchUserInformation , findUserUrls, findUserDbId} = require('./helpers/user_helpers')
-
+const { cookieCheck } = middlewareHelperGenerator(users, fetchUserInformation)
 
 
 
@@ -23,6 +24,7 @@ app.use(
 		keys: [`Welcome to my world`, "key2"],
 	})
 );
+app.use(cookieCheck);
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -34,27 +36,44 @@ app.get('/urls.json', (req, res) => {
 
 
 app.get('/urls', (req, res) => {
-  if(!req.cookies['user_id']){
-    return res.send(`Please login first`);
-  } 
+  // if(!req.cookies['user_id']){
+  //   return res.send(`Please login first`);
+  // } 
+  //Get the set cookie session 
+  const { user_id } = req.session;
+
+	// Fetch user information based on the value of the cookie
+  const { data, error } = fetchUserInformation(users, user_id);
+
+	if (error) {
+		console.log(error);
+		return res.send(`Please login first`);
+	}
+  
+	// Give values to templateVars
   const userId = req.cookies['user_id'];
   const templateVars = {
-    user: users[userId],
+    user: data,
     urls: findUserUrls(urlDatabase,userId)
   };
-  console.log(`from GET /urls`,urlDatabase);
   res.render('urls_index',templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
+  //Get the set cookie session 
+  const { user_id } = req.session;
+
+	// Fetch user information based on the value of the cookie
+  const { data, error } = fetchUserInformation(users, user_id);
+
+	if (error) {
+		console.log(error);
+    return res.redirect('/login');
+	}
   const templateVars = {
-    user: users[req.cookies['user_id']],
+    user: data,
     urls: urlDatabase
   };
-  if(!req.cookies['user_id']){
-    return res.redirect('/login');
-  } 
-
   res.render('urls_new',templateVars);
   
 }); 
@@ -84,8 +103,8 @@ app.post('/register', (req, res) => {
   if(!email || !password){
     return res.sendStatus(400);
   }
-  const found = findUserDbId(email);
-  if(found) {
+  const userDbId = findUserDbId(email);
+  if(userDbId) {
     return res.sendStatus(400);
   }
   // Add it to the database 
@@ -94,7 +113,9 @@ app.post('/register', (req, res) => {
     email: email, 
     password: bcrypt.hashSync(password, salt)
   }
-  res.cookie('user_id', newRandomId );
+  // res.cookie('user_id', newRandomId );
+  req.session.user_id = newRandomId;
+  console.log(req.session)
   // redirect
   res.redirect('/urls');
 })
@@ -127,23 +148,23 @@ app.post('/login', (req, res) => {
 
   const {email, password} = req.body;
 
-  const found = findUserDbId(email, users);
-  if(!found) {
-    return res.sendStatus(403);
+  const userDbId = findUserDbId(email, users);
+  if(!userDbId) {
+    return res.status(400).send(`User does not exist<a href='/login'> Back to Login</a>`);
   }
-  // !bcrypt.compareSync(users[found].password, password)
-  if(!bcrypt.compareSync(password, users[found].password)) {
-    console.log(`bcrypt was triggered`)
-    return res.sendStatus(403);
+  if(!bcrypt.compareSync(password, users[userDbId].password)) {
+    return res.status(400).send(`Invalid Password<a href='/login'> Back to Login</a>`);
   }
   
-  res.cookie('user_id', found);
+  // res.cookie('user_id', userDbId);
+  req.session.user_id = userDbId;
+
   res.redirect('/urls');    
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
-
+  // res.clearCookie('user_id');
+  delete req.session.user_id;
   res.redirect('/urls');    
 });
 

@@ -18,11 +18,11 @@ const authenticateUser = (userDB, email, password) => {
 	return { data: currentUser, error: null };
 };
 
-const fetchUserInformation = (userDB, email) => {
-	const currentUser = userDB[email];
+const fetchUserInformation = (userDB, user_id) => {
+	const currentUser = userDB[user_id];
 
 	if (!currentUser) {
-		return { data: null, error: "Invalid email in cookie" };
+		return { data: null, error: "Invalid user_id in cookie" };
 	}
 	return { data: currentUser, error: null };
 };
