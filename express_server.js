@@ -143,7 +143,7 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
-app.post('/urls/new', (req, res) => {
+app.post('/urls', (req, res) => {
 
   //Get the set cookie session
   const { userId } = req.session;
@@ -161,14 +161,13 @@ app.post('/urls/new', (req, res) => {
   //Random string generator
   const newKey = Math.random().toString(36).substring(2,8);
 
-  // Add it to the database (jsJokesDb)
+  // Add it to the database 
   urlDatabase[newKey] = {
     longURL,
     userID: userId
   };
-
   // redirect
-  res.redirect('/urls');
+  res.redirect(`/urls/${newKey}`);
 
 
 });
@@ -252,7 +251,7 @@ app.get('/urls/:shortURL', (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     return res.send(`This link is invalid<a href='/urls'> Back to User page</a>`);
   }
-
+  console.log(`present place`,urlDatabase)
   if (urlDatabase[req.params.shortURL].userID !== userId) {
     return res.send(`This link doesn't exist in your collection<a href='/urls'> Back to User page</a>`);
   }
