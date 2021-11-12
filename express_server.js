@@ -122,9 +122,16 @@ app.post('/register', (req, res) => {
 
 app.post('/urls/new', (req, res) => {
 
-  if(!req.cookies['user_id']){
-    res.sendStatus(403);
-  } 
+  //Get the set cookie session 
+  const { user_id } = req.session;
+
+	// Fetch user information based on the value of the cookie
+  const {error } = fetchUserInformation(users, user_id);
+
+	if (error) {
+		console.log(error);
+    return res.status(403).send(`Please login first<a href='/login'> Back to Login</a>`);
+	}
   // extract the information that was Submitted with the form
   const longURL = req.body.longURL;
 
@@ -169,19 +176,30 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  if(!req.cookies['user_id']){
-    return res.sendStatus(403);
-  } 
+  const { user_id } = req.session;
 
+	// Fetch user information based on the value of the cookie
+  const {error } = fetchUserInformation(users, user_id);
+
+	if (error) {
+		console.log(error);
+    return res.status(403).send(`Please login first<a href='/login'> Back to Login</a>`);
+	}
   const shortURL = req.params.shortURL;  
   delete urlDatabase[shortURL];  
   res.redirect('/urls');    
 });
 
 app.post('/urls/:shortURL/', (req, res) => {
-  if(!req.cookies['user_id']){
-    return res.sendStatus(403);
-  } 
+  const { user_id } = req.session;
+
+	// Fetch user information based on the value of the cookie
+  const {error } = fetchUserInformation(users, user_id);
+
+	if (error) {
+		console.log(error);
+    return res.status(403).send(`Please login first<a href='/login'> Back to Login</a>`);
+	}
  // extract the id
   const shortURL = req.params.shortURL;
 
@@ -205,9 +223,15 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  if(!req.cookies['user_id']){
-    return res.send(`Please login first`);
-  } 
+  const { user_id } = req.session;
+
+	// Fetch user information based on the value of the cookie
+  const {error } = fetchUserInformation(users, user_id);
+
+	if (error) {
+		console.log(error);
+    return res.status(403).send(`Please login first<a href='/login'> Back to Login</a>`);
+	}
 
   if(!urlDatabase[req.params.shortURL]) {
     return res.send(`This link is invalid`)
