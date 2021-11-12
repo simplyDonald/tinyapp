@@ -38,10 +38,10 @@ const findUserUrls = function(urlDatabase, userId){
 } 
 
 //return the id value in the Db from a matching email;
-const findDbId = function(email){
-  for(let userRandomId in users) {
-    if(users[userRandomId].email === email){
-      return users[userRandomId].id;
+const findDbId = function(email,userDb){
+  for(let userRandomId in userDb) {
+    if(userDb[userRandomId].email === email){
+      return userDb[userRandomId].id;
     }
   }
   return null;
