@@ -27,4 +27,23 @@ const fetchUserInformation = (userDB, email) => {
 	return { data: currentUser, error: null };
 };
 
-module.exports = { authenticateUser, fetchUserInformation };
+const findUserUrls = function(urlDatabase, userId){
+  const newObj = {};
+  for (shortURL in urlDatabase) {
+    if(urlDatabase[shortURL].userID === userId){
+      newObj[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return newObj;
+} 
+
+//return the id value in the Db from a matching email;
+const findDbId = function(email){
+  for(let userRandomId in users) {
+    if(users[userRandomId].email === email){
+      return users[userRandomId].id;
+    }
+  }
+  return null;
+}
+module.exports = { authenticateUser, fetchUserInformation , findUserUrls, findDbId };

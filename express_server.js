@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const {users, urlDatabase} = require("./data/user_data");
-
+const { authenticateUser, fetchUserInformation , findUserUrls, findDbId } = require('./helpers/user_helpers')
 
 
 
@@ -20,47 +20,9 @@ app.use(cookieParser());
 app.use(
 	cookieSession({
 		name: "session",
-		keys: ["I like security it's the best", "key2"],
+		keys: [`Welcome to my world`, "key2"],
 	})
 );
-//return the id value in the Db from a matching email;
-const findDbId = function(email){
-  for(let userRandomId in users) {
-    if(users[userRandomId].email === email){
-      return users[userRandomId].id;
-    }
-  }
-  return null;
-}
-
-//function to authenticate users by comparing hashed passwords(returns an object)
-const authenticateUser = (userDB, email, password) => {
-	const currentUser = userDB[email];
-
-	if (!currentUser) {
-		// If it doesn't match, redirect to /
-
-		return { data: null, error: "Not a valid email" };
-	}
-
-	// if (currentUser.password !== password) {
-	if (!bcrypt.compareSync(password, currentUser.password)) {
-		// If it doesn't match, redirect to /
-		return { data: null, error: "Not a valid password" };
-	}
-	// If it match, redirect to /vault + cookie
-	return { data: currentUser, error: null };
-};
-
-const findUserUrls = function(urlDatabase, userId){
-  const newObj = {};
-  for (shortURL in urlDatabase) {
-    if(urlDatabase[shortURL].userID === userId){
-      newObj[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return newObj;
-} 
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -163,14 +125,15 @@ app.post('/urls/new', (req, res) => {
 
 app.post('/login', (req, res) => {
 
-  const email = req.body.email;
-  const password = req.body.password;
+  const {email, password} = req.body;
+
   const found = findDbId(email);
   if(!found) {
-    res.sendStatus(403);
+    return res.sendStatus(403);
   }
-  if(users[found].password !== password) {
-    res.sendStatus(403);
+  // !bcrypt.compareSync(users[found].password, password)
+  if(!bcrypt.compareSync(users[found].password, password)) {
+    return res.sendStatus(403);
   }
   
   res.cookie('user_id', found);
