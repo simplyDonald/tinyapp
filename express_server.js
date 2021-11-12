@@ -84,7 +84,7 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    //Get the set cookie session
+  //Get the set cookie session
   const { userId } = req.session;
 
   // Fetch user information based on the value of the cookie
@@ -102,15 +102,15 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    //Get the set cookie session
-    const { userId } = req.session;
+  //Get the set cookie session
+  const { userId } = req.session;
 
-    // Fetch user information based on the value of the cookie
-    const {error } = fetchUserInformation(users, userId);
+  // Fetch user information based on the value of the cookie
+  const {error } = fetchUserInformation(users, userId);
   
-    if (!error) {
-      return res.redirect('/urls');
-    }
+  if (!error) {
+    return res.redirect('/urls');
+  }
 
   const templateVars = {
     user: users[userId],
@@ -130,7 +130,7 @@ app.post('/register', (req, res) => {
   }
   const userDb = findUserDb(email);
   if (userDb) {
-    return res.status(400).send(`Sorry that email exists already<a href='/register'> try another one</a> or <a href='/login'> login as an existing user</a>`);;
+    return res.status(400).send(`Sorry that email exists already<a href='/register'> try another one</a> or <a href='/login'> login as an existing user</a>`);
   }
   // Add it to the database
   users[newRandomId] = {
@@ -161,7 +161,7 @@ app.post('/urls', (req, res) => {
   //Random string generator
   const newKey = Math.random().toString(36).substring(2,8);
 
-  // Add it to the database 
+  // Add it to the database
   urlDatabase[newKey] = {
     longURL,
     userID: userId
@@ -251,7 +251,7 @@ app.get('/urls/:shortURL', (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     return res.send(`This link is invalid<a href='/urls'> Back to User page</a>`);
   }
-  console.log(`present place`,urlDatabase)
+  console.log(`present place`,urlDatabase);
   if (urlDatabase[req.params.shortURL].userID !== userId) {
     return res.send(`This link doesn't exist in your collection<a href='/urls'> Back to User page</a>`);
   }
