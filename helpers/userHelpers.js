@@ -38,12 +38,12 @@ const findUserUrls = function(urlDatabase, userId){
 } 
 
 //return the id value in the Db from a matching email;
-const findUserDbId = function(email,userDb){
+const findUserDb = function(email,userDb){
   for(let userRandomId in userDb) {
     if(userDb[userRandomId].email === email){
-      return userDb[userRandomId].id;
+      return userDb[userRandomId];
     }
   }
   return null;
 }
-module.exports = { authenticateUser, fetchUserInformation , findUserUrls, findUserDbId };
+module.exports = { authenticateUser, fetchUserInformation , findUserUrls, findUserDb };

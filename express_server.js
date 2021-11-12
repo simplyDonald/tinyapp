@@ -6,9 +6,9 @@ const salt = bcrypt.genSaltSync(10);
 const cookieParser = require('cookie-parser');
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
-const {users, urlDatabase} = require("./data/user_data");
-const middlewareHelperGenerator = require("./helpers/middleware_helpers");
-const { authenticateUser, fetchUserInformation , findUserUrls, findUserDbId} = require('./helpers/user_helpers')
+const {users, urlDatabase} = require("./data/userData");
+const middlewareHelperGenerator = require("./helpers/middlewareHelpers");
+const { authenticateUser, fetchUserInformation , findUserUrls, findUserDb} = require('./helpers/userHelpers')
 const { cookieCheck } = middlewareHelperGenerator(users, fetchUserInformation)
 
 
@@ -103,8 +103,8 @@ app.post('/register', (req, res) => {
   if(!email || !password){
     return res.sendStatus(400);
   }
-  const userDbId = findUserDbId(email);
-  if(userDbId) {
+  const userDb = findUserDb(email);
+  if(userDb) {
     return res.sendStatus(400);
   }
   // Add it to the database 
@@ -115,7 +115,6 @@ app.post('/register', (req, res) => {
   }
   // res.cookie('user_id', newRandomId );
   req.session.user_id = newRandomId;
-  console.log(req.session)
   // redirect
   res.redirect('/urls');
 })
@@ -155,16 +154,16 @@ app.post('/login', (req, res) => {
 
   const {email, password} = req.body;
 
-  const userDbId = findUserDbId(email, users);
-  if(!userDbId) {
+  const userDb = findUserDb(email, users);
+  if(!userDb) {
     return res.status(400).send(`User does not exist<a href='/login'> Back to Login</a>`);
   }
-  if(!bcrypt.compareSync(password, users[userDbId].password)) {
+  if(!bcrypt.compareSync(password, userDb.password)) {
     return res.status(400).send(`Invalid Password<a href='/login'> Back to Login</a>`);
   }
   
-  // res.cookie('user_id', userDbId);
-  req.session.user_id = userDbId;
+  // res.cookie('user_id', userDb);
+  req.session.user_id = userDb.id;
 
   res.redirect('/urls');    
 });
@@ -207,7 +206,6 @@ app.post('/urls/:shortURL/', (req, res) => {
   const longURL= req.body.longURL;
 
  // update the db
-
   urlDatabase[shortURL].longURL = longURL;
 
  // redirect
