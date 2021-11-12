@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const {users, urlDatabase} = require("./data/user_data");
-const { authenticateUser, fetchUserInformation , findUserUrls, findDbId} = require('./helpers/user_helpers')
+const { authenticateUser, fetchUserInformation , findUserUrls, findUserDbId} = require('./helpers/user_helpers')
 
 
 
@@ -84,7 +84,7 @@ app.post('/register', (req, res) => {
   if(!email || !password){
     return res.sendStatus(400);
   }
-  const found = findDbId(email);
+  const found = findUserDbId(email);
   if(found) {
     return res.sendStatus(400);
   }
@@ -127,12 +127,12 @@ app.post('/login', (req, res) => {
 
   const {email, password} = req.body;
 
-  const found = findDbId(email, users);
+  const found = findUserDbId(email, users);
   if(!found) {
     return res.sendStatus(403);
   }
   // !bcrypt.compareSync(users[found].password, password)
-  if(!bcrypt.compareSync(users[found].password, password)) {
+  if(!bcrypt.compareSync(password, users[found].password)) {
     console.log(`bcrypt was triggered`)
     return res.sendStatus(403);
   }
