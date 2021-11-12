@@ -38,12 +38,6 @@ app.get('/', (req, res) => {
   res.redirect('/urls');
 });
 
-//dev only
-app.get('/urls.json', (req, res) => {
-  res.json(users);
-});
-
-
 app.get('/urls', (req, res) => {
   
   const { userId } = req.session;
