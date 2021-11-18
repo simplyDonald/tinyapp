@@ -2,12 +2,10 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(10);
 const cookieParser = require('cookie-parser');
-const cookieSession = require("cookie-session");
+const cookieSession = require('cookie-session');
 const morgan = require('morgan');
-const {users, urlDatabase} = require("./data/userData");
-// const middlewareHelperGenerator = require("./helpers/middlewareHelpers");
+const {users, urlDatabase} = require('./data/userData');
 const { fetchUserInformation , findUserUrls, findUserDb} = require('./helpers/userHelpers');
-// const { cookieCheck } = middlewareHelperGenerator(users, fetchUserInformation);
 
 
 
@@ -20,8 +18,8 @@ app.set('view engine', 'ejs');
 app.use(cookieParser());
 app.use(
   cookieSession({
-    name: "session",
-    keys: [`Welcome to my world`, "key2"],
+    name: 'session',
+    keys: [`Welcome to my world`, 'key2'],
   })
 );
 // app.use(cookieCheck);
@@ -156,7 +154,6 @@ app.post('/urls', (req, res) => {
   if (!longURL.startsWith('http://')) {
     longURL = protocol + longURL;
   }
-  console.log(`longURL------>`,longURL)
   //Random string generator
   const newKey = Math.random().toString(36).substring(2,8);
 
@@ -200,6 +197,10 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     return res.status(403).send(`Please login first<a href='/login'> Back to Login</a>`);
   }
   const shortURL = req.params.shortURL;
+  //confirm that short link belongs to user.
+  if (urlDatabase[req.params.shortURL].userID !== userId) {
+    return res.status(403).send(`This link doesn't exist in your collection<a href='/urls'> Back to User page</a>`);
+  }
   delete urlDatabase[shortURL];
   res.redirect('/urls');
 });
@@ -214,9 +215,14 @@ app.post('/urls/:shortURL/', (req, res) => {
     console.log(error);
     return res.status(403).send(`Please login first<a href='/login'> Back to Login</a>`);
   }
+
   // extract the id
   const shortURL = req.params.shortURL;
-
+  
+  //confirm that short link belongs to user.
+  if (urlDatabase[req.params.shortURL].userID !== userId) {
+    return res.status(403).send(`This link doesn't exist in your collection<a href='/urls'> Back to User page</a>`);
+  }
   // extract the URL
   let longURL = req.body.longURL;
   //input validation
@@ -252,12 +258,14 @@ app.get('/urls/:shortURL', (req, res) => {
   }
 
   if (!urlDatabase[req.params.shortURL]) {
-    return res.send(`This link is invalid<a href='/urls'> Back to User page</a>`);
+    return res.status(400).send(`This link is invalid<a href='/urls'> Back to User page</a>`);
   }
 
+  //confirms that short link belongs to user
   if (urlDatabase[req.params.shortURL].userID !== userId) {
-    return res.send(`This link doesn't exist in your collection<a href='/urls'> Back to User page</a>`);
+    return res.status(403).send(`This link doesn't exist in your collection<a href='/urls'> Back to User page</a>`);
   }
+
   const templateVars = { user: users[userId],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL  };
