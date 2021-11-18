@@ -5,9 +5,9 @@ const cookieParser = require('cookie-parser');
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const {users, urlDatabase} = require("./data/userData");
-const middlewareHelperGenerator = require("./helpers/middlewareHelpers");
+// const middlewareHelperGenerator = require("./helpers/middlewareHelpers");
 const { fetchUserInformation , findUserUrls, findUserDb} = require('./helpers/userHelpers');
-const { cookieCheck } = middlewareHelperGenerator(users, fetchUserInformation);
+// const { cookieCheck } = middlewareHelperGenerator(users, fetchUserInformation);
 
 
 
@@ -24,7 +24,7 @@ app.use(
     keys: [`Welcome to my world`, "key2"],
   })
 );
-app.use(cookieCheck);
+// app.use(cookieCheck);
 
 app.get('/', (req, res) => {
   const { userId } = req.session;
@@ -122,7 +122,7 @@ app.post('/register', (req, res) => {
   if (!email || !password) {
     return res.status(400).send(`Empty field(s)--please input credentials<a href='/register'> Register</a>`);
   }
-  const userDb = findUserDb(email);
+  const userDb = findUserDb(email, users);
   if (userDb) {
     return res.status(400).send(`Sorry that email exists already<a href='/register'> try another one</a> or <a href='/login'> login as an existing user</a>`);
   }
