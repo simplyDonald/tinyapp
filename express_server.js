@@ -163,7 +163,6 @@ app.post('/urls', (req, res) => {
   // redirect
   res.redirect(`/urls/${newKey}`);
 
-
 });
 
 app.post('/login', (req, res) => {
@@ -181,8 +180,8 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  delete req.session.userId;
-  res.redirect('/urls');
+  req.session = null;
+  res.redirect('/login');
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
@@ -245,7 +244,7 @@ app.get('/urls/:shortURL', (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     return res.send(`This link is invalid<a href='/urls'> Back to User page</a>`);
   }
-  console.log(`present place`,urlDatabase);
+
   if (urlDatabase[req.params.shortURL].userID !== userId) {
     return res.send(`This link doesn't exist in your collection<a href='/urls'> Back to User page</a>`);
   }
