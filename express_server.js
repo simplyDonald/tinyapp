@@ -150,8 +150,13 @@ app.post('/urls', (req, res) => {
     return res.status(403).send(`Please login first<a href='/login'> Back to Login</a>`);
   }
   // extract the information that was Submitted with the form
-  const longURL = req.body.longURL;
-
+  let longURL = req.body.longURL;
+  const protocol = 'http://';
+  //input validation for http protocol
+  if (!longURL.startsWith('http://')) {
+    longURL = protocol + longURL;
+  }
+  console.log(`longURL------>`,longURL)
   //Random string generator
   const newKey = Math.random().toString(36).substring(2,8);
 
@@ -212,8 +217,13 @@ app.post('/urls/:shortURL/', (req, res) => {
   // extract the id
   const shortURL = req.params.shortURL;
 
-  // extract the question and anwer
-  const longURL = req.body.longURL;
+  // extract the URL
+  let longURL = req.body.longURL;
+  //input validation
+  const protocol = 'http://';
+  if (!longURL.startsWith('http://')) {
+    longURL = protocol + longURL;
+  }
 
   // update the db
   urlDatabase[shortURL].longURL = longURL;
